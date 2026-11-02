@@ -5,14 +5,31 @@ from __future__ import annotations
 import pandas as pd
 
 CANCELED_STATUSES = {"canceled", "unavailable"}
+MAX_LABEL_LENGTH = 60
+
+
+def clean_label(series: pd.Series) -> pd.Series:
+    """Readable, safe labels: letters, digits, spaces and hyphens only, length-capped.
+
+    Category names end up in the LLM prompt, so anything that could carry
+    instructions or markup is stripped here.
+    """
+    return (
+        series.fillna("sem_categoria")
+        .astype(str)
+        .str.replace("_", " ")
+        .str.replace(r"[^\w\s-]", "", regex=True)
+        .str.replace(r"\s+", " ", regex=True)
+        .str.strip()
+        .str.slice(0, MAX_LABEL_LENGTH)
+        .replace("", "sem categoria")
+    )
 
 
 def _main_category(items: pd.DataFrame, products: pd.DataFrame) -> pd.DataFrame:
     """Highest-value category in each order, with a readable name."""
     prod = products[["product_id", "product_category_name"]].copy()
-    prod["category"] = (
-        prod["product_category_name"].fillna("sem_categoria").str.replace("_", " ").str.strip()
-    )
+    prod["category"] = clean_label(prod["product_category_name"])
     merged = items.merge(prod[["product_id", "category"]], on="product_id", how="left")
     merged["category"] = merged["category"].fillna("sem categoria")
     by_cat = merged.groupby(["order_id", "category"], as_index=False)["price"].sum()
@@ -30,15 +47,14 @@ def build_orders_view(tables: dict[str, pd.DataFrame]) -> pd.DataFrame:
     item_totals = items.groupby("order_id").agg(
         items_value=("price", "sum"),
         freight_value=("freight_value", "sum"),
-        n_items=("order_item_id", "count"),
     )
 
-    payments = tables["payments"]
-    pay_totals = payments.groupby("order_id").agg(payment_value=("payment_value", "sum"))
+    # Main payment method = the one with the largest amount in the order.
     main_payment = (
-        payments.sort_values("payment_value", ascending=False)
+        tables["payments"]
+        .sort_values("payment_value", ascending=False)
         .drop_duplicates("order_id")
-        .set_index("order_id")[["payment_type", "payment_installments"]]
+        .set_index("order_id")[["payment_type"]]
     )
 
     # An order may have more than one review: keep the most recent one.
@@ -55,7 +71,6 @@ def build_orders_view(tables: dict[str, pd.DataFrame]) -> pd.DataFrame:
     view = (
         orders.set_index("order_id")
         .join(item_totals)
-        .join(pay_totals)
         .join(main_payment)
         .join(reviews)
         .join(categories)
