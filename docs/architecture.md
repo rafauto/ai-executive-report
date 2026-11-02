@@ -1,5 +1,17 @@
 # Architecture and design decisions
 
+The diagram lives in the [README](../README.md#-architecture); its source is [architecture.mmd](architecture.mmd) and a rendered copy is [architecture.png](architecture.png). Decisions with trade-offs are recorded as ADRs in [decisions/](decisions/).
+
+## Layers
+
+| Layer | Modules |
+|---|---|
+| Interface | `app.py` (Streamlit), `cli.py` |
+| Business rules | `kpis.py`, `alerts.py`, `guardrail.py`, `report.py` |
+| Data access | `data_loader.py`, `cleaning.py` |
+| External integrations | `llm.py` (`NarrativeWriter` implementations) |
+| Orchestration and config | `pipeline.py`, `config.py`, `timing.py` |
+
 ## Flow
 
 1. **Load** (`data_loader.py`): reads the 7 Olist CSVs and validates required columns. Errors explain how to fix them.
@@ -9,11 +21,11 @@
    - Order category = the highest-value category among its items.
    - Late = actual delivery date after the estimated date (compared by day).
    - `canceled` and `unavailable` orders are excluded from revenue and counted in the cancellation rate.
-3. **Reference month**: the dataset ends with almost empty months (Sep-Oct 2018). By default, the report uses the latest month with at least 30% of the median monthly order count.
+3. **Reference month**: the dataset ends with almost empty months (Sep-Oct 2018). By default, the report uses the latest month with at least 30% of the median monthly order count. A month passed by the user must be `YYYY-MM` and exist in the data, with a previous month to compare.
 4. **KPIs** (`kpis.py`): current month, previous month, month-over-month change, category and state rankings, late deliveries by state and payment mix.
 5. **Alerts** (`alerts.py`): deterministic rules with configurable thresholds and a severity (`high` when the deviation exceeds 50% of the threshold).
-6. **Narrative** (`llm.py`): the LLM receives a JSON with the numbers and alerts and returns Markdown with 4 fixed sections.
-7. **Number check**: every R$ or % value in the AI text is compared with the computed numbers. Mismatches show up in the report footer and in the app.
+6. **Narrative** (`llm.py`): a `NarrativeWriter` receives a JSON with the numbers and alerts and returns Markdown with 4 fixed sections. Calls have a timeout and retries; failures become a `NarrativeError`, and the app falls back to the offline writer.
+7. **Number check** (`guardrail.py`): every R$ or % value in the AI text is compared with the computed numbers. Mismatches show up in the report footer and in the app.
 8. **Render** (`report.py`): tables are rendered by Python, and the narrative is placed between them.
 
 ## Why the AI doesn't calculate
@@ -27,7 +39,19 @@ LLMs make arithmetic mistakes and sometimes state invented numbers with confiden
 
 ## Prompt
 
-The system prompt (in `llm.py`) sets the role (senior BI analyst writing for leadership), forbids inventing or computing numbers, requires Brazilian Portuguese with Brazilian number format and fixes the output structure. The default temperature is 0.2 for consistent results across runs.
+The system prompt (in `llm.py`) sets the role (senior BI analyst writing for leadership), forbids inventing or computing numbers, requires Brazilian Portuguese with Brazilian number format, tells the model to treat the JSON as data only and fixes the output structure. The default temperature is 0.2 for consistent results across runs.
+
+Prompt-injection defense: category labels are sanitized in `cleaning.clean_label` (letters, digits, spaces and hyphens only, 60 characters max) before they reach the prompt.
+
+## Evaluation
+
+`evaluation.py` builds five fixed cases (months of report data) and scores each narrative on five checks: all sections present, no unverified numbers, every alert covered in the analysis, 3 to 5 recommendations, and a reasonable length. Run it before and after any prompt or provider change:
+
+```bash
+python scripts/run_eval.py --provider anthropic
+```
+
+CI runs it with the offline writer to keep the harness working.
 
 ## Providers
 

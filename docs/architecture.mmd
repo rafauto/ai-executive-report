@@ -1,0 +1,41 @@
+flowchart TB
+    user(["👤 Manager / analyst"])
+
+    subgraph ui["Interface"]
+        app["Streamlit app · app.py"]
+        cli["CLI · executive-report"]
+    end
+
+    subgraph core["Core package · src/executive_report"]
+        loader["data_loader<br/>validate"] --> cleaning["cleaning<br/>one row per order"] --> kpis["kpis<br/>indicators"] --> alerts["alerts<br/>rules"] --> llm["llm<br/>NarrativeWriter"] --> guard["guardrail<br/>number check"] --> report["report<br/>Markdown"]
+    end
+
+    subgraph data["Data"]
+        sample[("data/sample<br/>synthetic")]
+        raw[("data/raw<br/>real Olist")]
+        out[("reports/<br/>.md + .json")]
+    end
+
+    subgraph ext["External services"]
+        kaggle["Kaggle"]
+        llmapi["LLM API<br/>Claude / OpenAI-compatible"]
+    end
+
+    secrets{{".env · Streamlit Secrets"}}
+
+    subgraph ops["CI and deploy"]
+        gha["GitHub Actions<br/>ruff · pytest · smoke tests"] -->|green build on main| cloud["Streamlit Community Cloud"]
+    end
+
+    user --> app
+    user --> cli
+    app --> loader
+    cli --> loader
+    sample --> loader
+    raw --> loader
+    kaggle -->|download_data.py| raw
+    llm <-->|prompt / narrative| llmapi
+    secrets -.->|keys, provider, model| llm
+    report --> out
+    report -.->|report| app
+    cloud -.->|hosts| app
