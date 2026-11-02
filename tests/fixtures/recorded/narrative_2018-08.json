@@ -1,0 +1,10 @@
+{
+  "month": "2018-08",
+  "recorded_at": "2026-11-02",
+  "text": "## Resumo executivo\nAgosto fechou com receita de R$ 34.199,26, queda de 26,7% sobre julho, em 190 pedidos. O ticket médio caiu para R$ 180,00. A nota média ficou em 4,10 e 7,9% das entregas atrasaram.\n\n## Análise dos alertas\nA receita recuou 26,7%, puxada pela queda de 19,5% no volume de pedidos. Os cancelamentos chegaram a 3,5% dos pedidos, acima do limite, e merecem atenção da operação.\n\n## Destaques positivos\n- A nota média de avaliação se manteve acima de 4.\n- 187 clientes únicos compraram no mês.\n\n## Recomendações\n1. Investigar a causa da queda de pedidos por categoria.\n2. Revisar os motivos de cancelamento com a operação.\n3. Acompanhar semanalmente os indicadores com alerta.\n",
+  "provider": "handwritten-test-fixture",
+  "model": "none",
+  "input_tokens": null,
+  "output_tokens": null,
+  "_note": "Handwritten in the LLM output format for tests. Not a real model answer."
+}
