@@ -1,5 +1,5 @@
 # Relatório Executivo · 2018-08
-_Gerado automaticamente em 02/11/2026 04:00 · Fonte: amostra sintética (schema Olist) · Comparação com 2018-07_
+_Gerado automaticamente em 02/11/2026 13:56 · Fonte: amostra sintética (schema Olist) · Comparação com 2018-07_
 
 ## Indicadores principais
 | Indicador | 2018-08 | 2018-07 | Variação |
@@ -54,4 +54,4 @@ _Narrativa gerada em modo offline (sem LLM)._
 | moveis decoracao | R$ 11.805,19 | -31,7% | 10,8% |
 
 ---
-<sub>Narrativa: offline (rules) · Tempo total de geração: 0,3 s</sub>
+<sub>Narrativa: offline (rules) · Tempo total de geração: 0,2 s</sub>

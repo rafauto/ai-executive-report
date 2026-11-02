@@ -2,16 +2,14 @@
 
 Thanks for your interest! Contributions are welcome: bug fixes, new KPIs, new alert rules, new LLM providers or documentation improvements.
 
+> ⚠️ **Never paste real data, personal data or API keys** in issues, pull requests, commits or test fixtures. Use the synthetic sample (`data/sample/`) or made-up values. If a key is ever committed, revoke it immediately: deleting the commit is not enough.
+
 ## Opening an issue
 
-Before opening one, search the [existing issues](../../issues) to avoid duplicates. Then include:
-
-- what you expected and what happened;
-- the command you ran and the full error message;
-- your Python version and operating system;
-- whether you used the real data (`data/raw`) or the sample (`data/sample`).
-
-**Never paste API keys in issues or pull requests.**
+1. Search the [existing issues](../../issues) to avoid duplicates.
+2. Choose a template:
+   - **Bug report**: what happened, what you expected, how to reproduce it, the full error and your environment.
+   - **Feature request**: a user story ("As a … I want … so that …") with acceptance criteria.
 
 ## Submitting a pull request
 
@@ -23,18 +21,19 @@ Before opening one, search the [existing issues](../../issues) to avoid duplicat
    ```bash
    pip install -e ".[dev,app]"
    ```
-3. Make your change **with tests** in `tests/`. Tests must run offline: mock any API call.
-4. Make sure everything passes:
+3. Make your change **with tests** in `tests/`. Tests must run offline: inject a fake writer or mock the SDK. A bug fix needs a regression test.
+4. Run lint and tests before opening the pull request:
    ```bash
    ruff format .
    ruff check .
    pytest
    ```
-5. Open the pull request explaining what changed and why. Link the related issue, if any.
+   If you changed the prompt or a writer, also run `python scripts/run_eval.py` and paste the result in the pull request.
+5. Open the pull request with the template: what changed, why, and the issue it closes. It is merged only with a green CI.
 
 ## Commit messages
 
-This project follows [Conventional Commits](https://www.conventionalcommits.org/), in English:
+This project follows [Conventional Commits](https://www.conventionalcommits.org/), in English. One logical change per commit:
 
 | Type | When to use it | Example |
 |---|---|---|
@@ -46,9 +45,12 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org/
 | `style` | formatting only | `style: apply ruff format` |
 | `ci` / `chore` | CI, dependencies, maintenance | `ci: add Python 3.13 to the matrix` |
 
-## Project principles
+## Guiding principles
 
-- **The AI never calculates numbers.** Every new indicator is computed in `kpis.py` and tested; the LLM only writes.
-- Report text is in Brazilian Portuguese, with numbers formatted as `1.234,56` (see `formatting.py`).
-- New alert rules go in `alerts.py`, with a configurable threshold in `AlertThresholds`.
-- Only public or synthetic data.
+- **The AI never calculates numbers.** Every new indicator is computed in `kpis.py` and tested; the LLM only writes ([ADR 0001](docs/decisions/0001-llm-writes-code-calculates.md)).
+- **External services stay behind an interface.** New LLM providers implement `NarrativeWriter`; nothing else imports an SDK.
+- **Keep it simple.** The simplest solution that solves the problem; no layers or tools "for the future".
+- **Configuration, not constants.** Keys, URLs and limits come from environment variables or `config.py`.
+- **Only public or synthetic data**, and no company names anywhere in the repository.
+- Report text is in Brazilian Portuguese with Brazilian number format (`formatting.py`); everything else is in English.
+- Update the README, the architecture diagram and the CHANGELOG when the structure or behavior changes.

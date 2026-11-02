@@ -1,13 +1,13 @@
 {
   "reference_month": "2018-08",
   "stage_seconds": {
-    "1_load_data": 0.143,
-    "2_clean": 0.147,
-    "3_kpis_and_alerts": 0.054,
+    "1_load_data": 0.11,
+    "2_clean": 0.078,
+    "3_kpis_and_alerts": 0.034,
     "4_llm_narrative": 0.0,
     "5_render_report": 0.001
   },
-  "total_seconds": 0.345,
+  "total_seconds": 0.223,
   "llm": {
     "provider": "offline",
     "model": "rules",
@@ -15,5 +15,6 @@
     "output_tokens": null
   },
   "alerts": 4,
-  "unverified_numbers": []
+  "unverified_numbers": [],
+  "fallback_reason": null
 }
