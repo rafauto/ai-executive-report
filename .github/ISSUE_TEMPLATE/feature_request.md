@@ -11,9 +11,14 @@ labels: enhancement
 As a [type of user], I want [goal] so that [benefit].
 
 **Acceptance criteria**
-- [ ] ...
-- [ ] ...
-- [ ] Tests cover the new behavior (offline, with mocks)
+
+```gherkin
+Given [context]
+When [action]
+Then [observable result]
+```
+
+- [ ] Tests cover the new behavior (offline, with mocks or recorded answers)
 
 **Notes**
 Context, alternatives considered, links.
