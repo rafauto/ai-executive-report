@@ -28,7 +28,7 @@ from executive_report.config import (  # noqa: E402
 )
 from executive_report.data_loader import load_olist  # noqa: E402
 from executive_report.formatting import brl, num, pct  # noqa: E402
-from executive_report.llm import NarrativeError  # noqa: E402
+from executive_report.llm import NarrativeError, RecordedWriter  # noqa: E402
 from executive_report.pipeline import run_pipeline  # noqa: E402
 
 st.set_page_config(page_title="AI Executive Report · Olist", page_icon="📊", layout="wide")
@@ -83,13 +83,20 @@ month = st.sidebar.selectbox(
 )
 
 has_server_key = bool(os.getenv("ANTHROPIC_API_KEY") or os.getenv("OPENAI_API_KEY"))
-provider_options = ["anthropic", "openai", "offline"]
-default_provider = os.getenv("LLM_PROVIDER", "anthropic") if has_server_key else "offline"
+has_recordings = data_dir == str(SAMPLE_DATA_DIR) and bool(RecordedWriter().available_months())
+provider_options = ["anthropic", "openai", "recorded", "offline"]
+if has_server_key:
+    default_provider = os.getenv("LLM_PROVIDER", "anthropic")
+else:  # demo mode: no key needed
+    default_provider = "recorded" if has_recordings else "offline"
 provider = st.sidebar.selectbox(
     "AI provider",
     provider_options,
     index=provider_options.index(default_provider),
-    help="'offline' writes the narrative with rules: no AI, no cost.",
+    help=(
+        "'recorded' replays real AI answers saved for the sample data; "
+        "'offline' writes the narrative with rules. Both are free."
+    ),
 )
 model = st.sidebar.text_input(
     "Model (optional)",
@@ -97,7 +104,7 @@ model = st.sidebar.text_input(
     placeholder=LLMSettings.DEFAULT_MODELS.get(provider, ""),
 )
 user_key = ""
-if provider != "offline":
+if provider in ("anthropic", "openai"):
     user_key = st.sidebar.text_input(
         "Your API key (optional)",
         type="password",
@@ -129,13 +136,14 @@ if data_dir == str(SAMPLE_DATA_DIR):
 
 llm_runs = st.session_state.get("llm_runs", 0)
 if st.button("🚀 Generate report", type="primary"):
-    if provider != "offline" and llm_runs >= MAX_LLM_REPORTS_PER_SESSION:
+    uses_paid_api = provider in ("anthropic", "openai")
+    if uses_paid_api and llm_runs >= MAX_LLM_REPORTS_PER_SESSION:
         st.warning(
             f"This demo allows {MAX_LLM_REPORTS_PER_SESSION} AI reports per session to keep "
-            "costs under control. Switch to 'offline' or run the project locally."
+            "costs under control. Switch to 'recorded' or 'offline', or run it locally."
         )
         st.stop()
-    if provider != "offline":
+    if uses_paid_api:
         st.session_state["llm_runs"] = llm_runs + 1
     st.session_state["run"] = (data_dir, month, provider, model)
 
@@ -152,7 +160,7 @@ try:
     except NarrativeError as exc:
         # Provider down or key invalid: keep the app useful with the offline narrative.
         # Failures are not cached, so the next click tries the AI again.
-        st.warning(f"The AI provider failed, so this narrative was written offline. {exc}")
+        st.warning(f"The AI narrative is unavailable, so it was written offline. {exc}")
         markdown, data, alerts, llm, timings, unverified = cached_report(
             run_data_dir, run_month, "offline", "", None
         )

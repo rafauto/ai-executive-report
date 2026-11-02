@@ -4,6 +4,8 @@ Supported providers (LLM_PROVIDER):
 - anthropic : Claude, via ANTHROPIC_API_KEY
 - openai    : any OpenAI-compatible API (OpenAI, Groq, Gemini, Ollama...)
               via OPENAI_API_KEY and, optionally, OPENAI_BASE_URL
+- recorded  : replays real LLM answers saved by scripts/record_responses.py
+              (key-less demo with genuine AI text)
 - offline   : rule-based text, no AI (for tests, CI and key-less demos)
 
 The report is written for a Brazilian board, so the system prompt and the
@@ -15,10 +17,11 @@ from __future__ import annotations
 import json
 import logging
 import os
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
+from pathlib import Path
 from typing import Protocol
 
-from .config import LLMSettings
+from .config import RECORDED_DIR, LLMSettings
 from .formatting import brl, num, pct
 
 logger = logging.getLogger(__name__)
@@ -200,6 +203,44 @@ def offline_narrative(data: dict, alerts: list[dict]) -> str:
     return "\n".join(lines)
 
 
+class RecordedWriter:
+    """Replays a real LLM answer recorded for the same month of the same dataset."""
+
+    def __init__(self, directory: Path = RECORDED_DIR) -> None:
+        self.directory = Path(directory)
+
+    def path_for(self, month: str) -> Path:
+        return self.directory / f"narrative_{month}.json"
+
+    def available_months(self) -> list[str]:
+        return sorted(p.stem.removeprefix("narrative_") for p in self.directory.glob("*.json"))
+
+    def write(self, data: dict, alerts: list[dict]) -> LLMResult:
+        path = self.path_for(data["reference_month"])
+        if not path.exists():
+            raise NarrativeError(
+                f"No recorded answer for {data['reference_month']}. "
+                "Record one with scripts/record_responses.py or use the offline provider."
+            )
+        record = json.loads(path.read_text(encoding="utf-8"))
+        return _check_sections(
+            LLMResult(
+                record["text"],
+                f"recorded ({record['provider']})",
+                record["model"],
+                record.get("input_tokens"),
+                record.get("output_tokens"),
+            )
+        )
+
+    def save(self, month: str, result: LLMResult, recorded_at: str) -> Path:
+        self.directory.mkdir(parents=True, exist_ok=True)
+        path = self.path_for(month)
+        record = {"month": month, "recorded_at": recorded_at, **asdict(result)}
+        path.write_text(json.dumps(record, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        return path
+
+
 WRITERS = {
     "anthropic": AnthropicWriter,
     "openai": OpenAICompatibleWriter,
@@ -210,9 +251,12 @@ def create_writer(settings: LLMSettings) -> NarrativeWriter:
     """Pick the writer for the configured provider."""
     if settings.provider == "offline":
         return OfflineWriter()
+    if settings.provider == "recorded":
+        return RecordedWriter()
     if settings.provider not in WRITERS:
         raise ValueError(
-            f"Invalid LLM_PROVIDER: {settings.provider!r}. Use anthropic, openai or offline."
+            f"Invalid LLM_PROVIDER: {settings.provider!r}. "
+            "Use anthropic, openai, recorded or offline."
         )
     return WRITERS[settings.provider](settings)
 

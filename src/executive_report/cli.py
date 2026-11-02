@@ -22,7 +22,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--month", help="Reference month YYYY-MM (default: latest complete month)")
     p.add_argument(
         "--provider",
-        choices=["anthropic", "openai", "offline"],
+        choices=["anthropic", "openai", "recorded", "offline"],
         help="LLM provider (default: LLM_PROVIDER env var or anthropic)",
     )
     p.add_argument("--model", help="LLM model (default: LLM_MODEL env var)")

@@ -10,6 +10,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
 SAMPLE_DATA_DIR = PROJECT_ROOT / "data" / "sample"
 REPORTS_DIR = PROJECT_ROOT / "reports"
+RECORDED_DIR = PROJECT_ROOT / "examples" / "recorded"  # real LLM answers replayed in demo mode
 
 # File names exactly as published on Kaggle (olistbr/brazilian-ecommerce).
 OLIST_FILES = {
