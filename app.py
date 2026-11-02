@@ -20,15 +20,19 @@ from executive_report.config import (  # noqa: E402
     BASELINE_AUTOMATION_MIN,
     BASELINE_MANUAL_MIN,
     HUMAN_REVIEW_MIN,
+    MAX_LLM_REPORTS_PER_SESSION,
     RAW_DATA_DIR,
     SAMPLE_DATA_DIR,
     LLMSettings,
+    load_env,
 )
 from executive_report.data_loader import load_olist  # noqa: E402
 from executive_report.formatting import brl, num, pct  # noqa: E402
+from executive_report.llm import NarrativeError  # noqa: E402
 from executive_report.pipeline import run_pipeline  # noqa: E402
 
 st.set_page_config(page_title="AI Executive Report · Olist", page_icon="📊", layout="wide")
+load_env()  # local .env, if present
 
 # Streamlit Cloud secrets become environment variables for the SDKs.
 for key in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY", "OPENAI_BASE_URL", "LLM_PROVIDER", "LLM_MODEL"):
@@ -97,7 +101,10 @@ if provider != "offline":
     user_key = st.sidebar.text_input(
         "Your API key (optional)",
         type="password",
-        help="Used only in this session and never stored. Without it, the server key is used, if any.",
+        help=(
+            "Used only in this session and never stored. "
+            "Without it, the server key is used, if any."
+        ),
     )
     # The visitor's key NEVER goes into os.environ (which is shared across sessions).
     if not user_key and not has_server_key:
@@ -120,17 +127,35 @@ if data_dir == str(SAMPLE_DATA_DIR):
         "You are viewing the **synthetic sample** (Olist schema, fictitious numbers).", icon="ℹ️"
     )
 
+llm_runs = st.session_state.get("llm_runs", 0)
 if st.button("🚀 Generate report", type="primary"):
+    if provider != "offline" and llm_runs >= MAX_LLM_REPORTS_PER_SESSION:
+        st.warning(
+            f"This demo allows {MAX_LLM_REPORTS_PER_SESSION} AI reports per session to keep "
+            "costs under control. Switch to 'offline' or run the project locally."
+        )
+        st.stop()
+    if provider != "offline":
+        st.session_state["llm_runs"] = llm_runs + 1
     st.session_state["run"] = (data_dir, month, provider, model)
 
 if "run" not in st.session_state:
     st.write("Pick a month and a provider in the sidebar, then click **Generate report**.")
     st.stop()
 
+run_data_dir, run_month, run_provider, run_model = st.session_state["run"]
 try:
-    markdown, data, alerts, llm, timings, unverified = cached_report(
-        *st.session_state["run"], user_key or None
-    )
+    try:
+        markdown, data, alerts, llm, timings, unverified = cached_report(
+            run_data_dir, run_month, run_provider, run_model, user_key or None
+        )
+    except NarrativeError as exc:
+        # Provider down or key invalid: keep the app useful with the offline narrative.
+        # Failures are not cached, so the next click tries the AI again.
+        st.warning(f"The AI provider failed, so this narrative was written offline. {exc}")
+        markdown, data, alerts, llm, timings, unverified = cached_report(
+            run_data_dir, run_month, "offline", "", None
+        )
 except Exception as exc:
     st.error(f"Could not generate the report: {exc}")
     st.stop()
