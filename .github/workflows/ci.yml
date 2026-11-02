@@ -18,13 +18,16 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-      - name: Install dependencies
-        run: pip install -e ".[dev]"
+          cache-dependency-path: pyproject.toml
+      - name: Install
+        run: pip install -e ".[dev,app]"
       - name: Lint
         run: ruff check .
       - name: Check formatting
         run: ruff format --check .
-      - name: Tests
+      - name: Tests (unit, integration, regression, app smoke test)
         run: pytest
-      - name: Generate a sample report (offline)
-        run: python -m executive_report --provider offline
+      - name: Smoke test - CLI end to end in demo mode
+        run: executive-report --provider offline
+      - name: Smoke test - evaluation harness
+        run: python scripts/run_eval.py --provider offline --min-pass-rate 100
