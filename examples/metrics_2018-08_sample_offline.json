@@ -1,0 +1,19 @@
+{
+  "reference_month": "2018-08",
+  "stage_seconds": {
+    "1_load_data": 0.143,
+    "2_clean": 0.147,
+    "3_kpis_and_alerts": 0.054,
+    "4_llm_narrative": 0.0,
+    "5_render_report": 0.001
+  },
+  "total_seconds": 0.345,
+  "llm": {
+    "provider": "offline",
+    "model": "rules",
+    "input_tokens": null,
+    "output_tokens": null
+  },
+  "alerts": 4,
+  "unverified_numbers": []
+}
