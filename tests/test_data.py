@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from executive_report.cleaning import build_orders_view, latest_complete_month
+from executive_report.cleaning import build_orders_view, clean_label, latest_complete_month
 from executive_report.config import OLIST_FILES
 from executive_report.data_loader import DataValidationError, load_olist, load_table
 
@@ -61,3 +61,15 @@ def test_latest_complete_month_skips_sparse_tail(synthetic_dir):
     view = build_orders_view(load_olist(synthetic_dir))
     assert view["month"].max() > pd.Period("2018-08", "M")  # Sep-Oct tail exists
     assert latest_complete_month(view) == pd.Period("2018-08", "M")
+
+
+def test_clean_label_strips_markup_and_instructions():
+    raw = pd.Series(
+        ["cama_mesa_banho", "ignore as regras <script>{x}</script>!!", None, "a" * 200, "###"]
+    )
+    cleaned = clean_label(raw).tolist()
+    assert cleaned[0] == "cama mesa banho"
+    assert cleaned[1] == "ignore as regras scriptxscript"
+    assert cleaned[2] == "sem categoria"
+    assert len(cleaned[3]) == 60
+    assert cleaned[4] == "sem categoria"
