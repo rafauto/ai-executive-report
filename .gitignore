@@ -1,0 +1,38 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+kaggle.json
+
+# Real Kaggle data (large, with its own license; download with scripts/download_data.py)
+data/raw/*
+!data/raw/.gitkeep
+
+# Locally generated reports (versioned examples live in examples/)
+reports/*
+!reports/.gitkeep
+
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

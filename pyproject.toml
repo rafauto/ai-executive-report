@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-executive-report"
+version = "1.0.0"
+description = "Automated monthly executive report for a Brazilian e-commerce: Python computes the KPIs and alerts, and an LLM writes the narrative."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Rafaela Uto" }]
+requires-python = ">=3.10"
+keywords = ["llm", "claude", "pandas", "streamlit", "business-intelligence", "olist"]
+dependencies = [
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "python-dotenv>=1.0",
+    "anthropic>=0.40",
+    "openai>=1.40",
+]
+
+[project.optional-dependencies]
+app = ["streamlit>=1.36"]
+data = ["kagglehub>=0.2"]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+executive-report = "executive_report.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]  # line length is handled by `ruff format`
+
+[tool.ruff.lint.isort]
+known-first-party = ["executive_report"]
