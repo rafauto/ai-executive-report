@@ -17,7 +17,3 @@ class StageTimer:
             yield
         finally:
             self.stages[name] = round(time.perf_counter() - start, 3)
-
-    @property
-    def total_seconds(self) -> float:
-        return round(sum(self.stages.values()), 3)

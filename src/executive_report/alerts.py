@@ -92,7 +92,8 @@ def evaluate_alerts(data: dict, t: AlertThresholds | None = None) -> list[Alert]
                 "HIGH_CANCELLATIONS",
                 _severity(k["cancel_rate_pct"], t.cancel_rate_pct, True),
                 "Cancelamentos acima do limite",
-                f"{pct(k['cancel_rate_pct'])} dos pedidos foram cancelados ou ficaram indisponíveis.",
+                f"{pct(k['cancel_rate_pct'])} dos pedidos foram cancelados "
+                "ou ficaram indisponíveis.",
                 k["cancel_rate_pct"],
                 t.cancel_rate_pct,
             )
@@ -144,7 +145,8 @@ def evaluate_alerts(data: dict, t: AlertThresholds | None = None) -> list[Alert]
                     "STATE_LATE_DELIVERIES",
                     _severity(st["late_pct"], t.state_late_pct, True),
                     f"Atraso concentrado em {st['state']}",
-                    f"{pct(st['late_pct'])} de atraso em {st['delivered_orders']} entregas no estado.",
+                    f"{pct(st['late_pct'])} de atraso em "
+                    f"{st['delivered_orders']} entregas no estado.",
                     st["late_pct"],
                     t.state_late_pct,
                 )

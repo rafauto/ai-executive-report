@@ -3,16 +3,18 @@
 from __future__ import annotations
 
 import argparse
+import dataclasses
+import logging
 import sys
 from pathlib import Path
 
-from .config import REPORTS_DIR, LLMSettings
+from .config import REPORTS_DIR, LLMSettings, load_env
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         prog="executive-report",
-        description="Generate the monthly executive report for the Olist e-commerce dataset with AI.",
+        description="Generate the monthly executive report for the Olist dataset with AI.",
     )
     p.add_argument(
         "--data-dir", help="Folder with the Olist CSVs (default: data/raw, else data/sample)"
@@ -27,27 +29,25 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument(
         "--out", type=Path, default=REPORTS_DIR, help="Output folder (default: reports/)"
     )
+    p.add_argument("-v", "--verbose", action="store_true", help="Show detailed logs")
     return p.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
-    try:
-        from dotenv import load_dotenv
-
-        load_dotenv()
-    except ImportError:
-        pass
-
+    load_env()
     args = parse_args(argv)
+    logging.basicConfig(
+        level=logging.INFO if args.verbose else logging.WARNING,
+        format="%(levelname)s %(name)s: %(message)s",
+    )
     from .pipeline import run_pipeline  # import pandas only after --help
 
-    defaults = LLMSettings()
-    settings = LLMSettings(
-        provider=args.provider or defaults.provider,
-        model=args.model or defaults.model,
-        temperature=defaults.temperature,
-        max_tokens=defaults.max_tokens,
-    )
+    settings = LLMSettings()
+    if args.provider:
+        settings = dataclasses.replace(settings, provider=args.provider)
+    if args.model:
+        settings = dataclasses.replace(settings, model=args.model)
+
     try:
         result = run_pipeline(args.data_dir, args.month, settings)
     except Exception as exc:  # friendly message on the command line
@@ -56,7 +56,7 @@ def main(argv: list[str] | None = None) -> int:
 
     path = result.save(args.out)
     print(f"Report saved to {path}")
-    print(f"Alerts: {len(result.alerts)} · Total time: {sum(result.timings.values()):.1f} s")
+    print(f"Alerts: {len(result.alerts)} · Total time: {result.total_seconds:.1f} s")
     for stage, secs in result.timings.items():
         print(f"  {stage:<20} {secs:>7.2f} s")
     if result.unverified:

@@ -8,6 +8,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import statistics
 import sys
 from pathlib import Path
@@ -20,18 +21,13 @@ from executive_report.config import (  # noqa: E402
     BASELINE_MANUAL_MIN,
     HUMAN_REVIEW_MIN,
     LLMSettings,
+    load_env,
 )
 from executive_report.pipeline import run_pipeline  # noqa: E402
 
 
 def main() -> None:
-    try:
-        from dotenv import load_dotenv
-
-        load_dotenv(ROOT / ".env")
-    except ImportError:
-        pass
-
+    load_env()
     p = argparse.ArgumentParser()
     p.add_argument("--runs", type=int, default=3)
     p.add_argument("--provider", default=None)
@@ -39,11 +35,13 @@ def main() -> None:
     p.add_argument("--month", default=None)
     args = p.parse_args()
 
-    settings = LLMSettings(provider=args.provider) if args.provider else LLMSettings()
+    settings = LLMSettings()
+    if args.provider:
+        settings = dataclasses.replace(settings, provider=args.provider)
     totals, last = [], None
     for i in range(args.runs):
         last = run_pipeline(args.data_dir, args.month, settings)
-        totals.append(sum(last.timings.values()))
+        totals.append(last.total_seconds)
         print(f"run {i + 1}: {totals[-1]:.2f} s")
 
     median_s = statistics.median(totals)
@@ -57,9 +55,8 @@ def main() -> None:
     saved_auto = 100 * (1 - BASELINE_AUTOMATION_MIN / BASELINE_MANUAL_MIN)
     print(f"| Previous automation | {BASELINE_AUTOMATION_MIN} min | {saved_auto:.0f}% |")
     saved_ai = 100 * (1 - ai_min / BASELINE_MANUAL_MIN)
-    print(
-        f"| With AI (generation + {HUMAN_REVIEW_MIN} min review) | {ai_min:.1f} min | {saved_ai:.0f}% |"
-    )
+    label = f"With AI (generation + {HUMAN_REVIEW_MIN} min review)"
+    print(f"| {label} | {ai_min:.1f} min | {saved_ai:.0f}% |")
     print(f"\nProvider: {last.llm.provider} · model: {last.llm.model}")
 
 

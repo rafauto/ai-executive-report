@@ -100,8 +100,9 @@ def render_report(
     ]
     if unverified:
         parts.append(
-            "> ⚠️ **Verificação automática:** os valores a seguir aparecem no texto da IA mas não "
-            f"foram encontrados nos dados calculados e devem ser conferidos: {', '.join(unverified)}"
+            "> ⚠️ **Verificação automática:** os valores a seguir aparecem no texto da IA "
+            "mas não foram encontrados nos dados calculados e devem ser conferidos: "
+            f"{', '.join(unverified)}"
         )
         parts.append("")
     tokens = ""
