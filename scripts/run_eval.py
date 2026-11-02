@@ -28,7 +28,7 @@ def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--provider", default=None)
     p.add_argument("--data-dir", default=None)
-    p.add_argument("--min-pass-rate", type=float, default=0.0, help="Exit 1 below this %")
+    p.add_argument("--min-pass-rate", type=float, default=80.0, help="Target: exit 1 below this %%")
     args = p.parse_args()
 
     settings = LLMSettings()
