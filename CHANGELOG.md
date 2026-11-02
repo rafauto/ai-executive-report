@@ -6,14 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 ## [1.0.0] - 2026-11-02
 
 ### Added
-- `NarrativeWriter` interface with Anthropic, OpenAI-compatible and offline writers.
+- `NarrativeWriter` interface with Anthropic, OpenAI-compatible, recorded and offline writers.
+- Demo mode without an API key: the `recorded` provider replays real LLM answers saved by
+  `scripts/record_responses.py` (answers that fail the number guardrail are never saved).
 - LLM timeouts, retries and a clear `NarrativeError` for provider failures.
 - Offline fallback in the Streamlit app when the AI provider fails (failures are not cached).
 - Per-session limit of AI reports in the public demo (`MAX_LLM_REPORTS_PER_SESSION`).
-- Evaluation harness (`scripts/run_eval.py`) with five fixed cases and five quality checks.
+- Evaluation harness (`scripts/run_eval.py`) with five fixed cases, five quality checks and an 80% minimum target.
 - Input validation for the reference month and sanitized category labels (prompt-injection defense).
 - Prompt rule to treat the JSON payload as data only.
-- Integration, regression and Streamlit smoke tests; eval smoke test in CI.
+- Integration, regression and Streamlit smoke tests with test fixtures; eval smoke test in CI.
 - Dependabot, issue and pull request templates, ADRs, product brief and this changelog.
 - `--verbose` flag with logging in the CLI.
 
@@ -39,5 +41,5 @@ MVP: the main flow works end to end.
 - Signed absolute changes in the KPI table (`+3,8` instead of `3,80`).
 - A visitor's API key is never written to `os.environ`, which is shared across app sessions.
 
-[1.0.0]: https://github.com/YOUR_GITHUB_USERNAME/ai-executive-report/compare/v0.1.0...v1.0.0
-[0.1.0]: https://github.com/YOUR_GITHUB_USERNAME/ai-executive-report/releases/tag/v0.1.0
+[1.0.0]: https://github.com/rafauto/ai-executive-report/compare/v0.1.0...v1.0.0
+[0.1.0]: https://github.com/rafauto/ai-executive-report/releases/tag/v0.1.0

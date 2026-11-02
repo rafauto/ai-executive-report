@@ -16,7 +16,8 @@ pytest                                         # tests (offline, LLM calls are m
 ruff check . && ruff format --check .          # lint + formatting
 executive-report --provider offline            # generate a report without an API key
 streamlit run app.py                           # web app
-python scripts/run_eval.py --provider offline  # narrative evaluation
+python scripts/run_eval.py --provider offline  # narrative evaluation (target 80%)
+python scripts/record_responses.py --provider anthropic  # refresh demo answers (needs a key)
 python scripts/generate_sample_data.py         # rebuild data/sample (synthetic)
 mmdc -i docs/architecture.mmd -o docs/architecture.png -b white   # re-render the diagram
 ```
@@ -28,7 +29,7 @@ mmdc -i docs/architecture.mmd -o docs/architecture.png -b white   # re-render th
 - LLM providers implement `NarrativeWriter` in `llm.py`; only that module imports an SDK.
 - Alert rules live in `alerts.py`; thresholds in `AlertThresholds` (`config.py`).
 - Report text uses Brazilian number format (`1.234,56`, `12,3%`) via `formatting.py`.
-- Tests must run offline: inject `tests/helpers.FakeWriter` or mock the SDK module.
+- Tests must run offline: inject `tests/helpers.FakeWriter`, use `tests/fixtures/` or mock the SDK module.
   Every bug fix gets a regression test.
 - Never commit `.env`, `.streamlit/secrets.toml` or files in `data/raw/`.
 - Only public or synthetic data. Do not mention employers or clients anywhere.

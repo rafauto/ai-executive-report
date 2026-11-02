@@ -9,7 +9,7 @@ LLM prices, quotas and quality change often. People trying the project may have 
 
 ## Decision
 
-Every provider implements the same `NarrativeWriter` interface (`write(data, alerts) -> LLMResult`). There are three writers: Anthropic (Claude), OpenAI-compatible (covers OpenAI, Groq, Gemini and Ollama through `OPENAI_BASE_URL`) and offline (rule-based). `create_writer(settings)` picks one from configuration; `run_pipeline` also accepts an injected writer. Provider errors become a `NarrativeError` with a clear message; the app can fall back to the offline writer.
+Every provider implements the same `NarrativeWriter` interface (`write(data, alerts) -> LLMResult`). There are four writers: Anthropic (Claude), OpenAI-compatible (covers OpenAI, Groq, Gemini and Ollama through `OPENAI_BASE_URL`), recorded (replays real answers saved for the demo data) and offline (rule-based). `create_writer(settings)` picks one from configuration; `run_pipeline` also accepts an injected writer. Provider errors become a `NarrativeError` with a clear message; the app can fall back to the offline writer.
 
 ## Consequences
 

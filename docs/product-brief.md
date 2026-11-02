@@ -23,7 +23,7 @@ Secondary user: the analyst who prepares the numbers and wants to stop rewriting
 
 **In:** load and clean the Olist orders, 10 monthly KPIs vs. the previous month, rule-based alerts, an LLM-written narrative with a number check, a Markdown report and a CLI.
 
-**Out (roadmap):** PDF and scheduled email, revenue forecast, review sentiment analysis, order-level drill-down. The Streamlit app was added after the MVP so people can try it without installing anything.
+**Out (roadmap):** PDF and scheduled email, revenue forecast, review sentiment analysis, order-level drill-down. The Streamlit app and the key-less demo mode were added after the MVP so people can try it without installing anything.
 
 ## Hypothesis
 

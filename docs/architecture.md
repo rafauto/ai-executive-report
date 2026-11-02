@@ -9,7 +9,7 @@ The diagram lives in the [README](../README.md#-architecture); its source is [ar
 | Interface | `app.py` (Streamlit), `cli.py` |
 | Business rules | `kpis.py`, `alerts.py`, `guardrail.py`, `report.py` |
 | Data access | `data_loader.py`, `cleaning.py` |
-| External integrations | `llm.py` (`NarrativeWriter` implementations) |
+| External integrations | `llm.py` (`NarrativeWriter` implementations: Anthropic, OpenAI-compatible, recorded, offline) |
 | Orchestration and config | `pipeline.py`, `config.py`, `timing.py` |
 
 ## Flow
@@ -51,7 +51,11 @@ Prompt-injection defense: category labels are sanitized in `cleaning.clean_label
 python scripts/run_eval.py --provider anthropic
 ```
 
-CI runs it with the offline writer to keep the harness working.
+The default target is 80% (`--min-pass-rate`); the script exits with an error below it. CI runs it with the offline writer to keep the harness working.
+
+## Demo mode without a key
+
+`scripts/record_responses.py` runs a real provider on the synthetic sample for the evaluation months and saves each answer to `examples/recorded/` (answers that fail the guardrail are skipped). The `recorded` provider replays them, so the public app shows genuine AI text with no key and no cost. Months without a recording fall back to the rule-based text.
 
 ## Providers
 

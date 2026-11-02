@@ -12,6 +12,7 @@ flowchart TB
 
     subgraph data["Data"]
         sample[("data/sample<br/>synthetic")]
+        recorded[("examples/recorded<br/>recorded AI answers")]
         raw[("data/raw<br/>real Olist")]
         out[("reports/<br/>.md + .json")]
     end
@@ -35,6 +36,7 @@ flowchart TB
     raw --> loader
     kaggle -->|download_data.py| raw
     llm <-->|prompt / narrative| llmapi
+    recorded -.->|demo mode, no key| llm
     secrets -.->|keys, provider, model| llm
     report --> out
     report -.->|report| app
