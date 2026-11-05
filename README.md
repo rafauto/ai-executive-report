@@ -1,7 +1,7 @@
 # 📊 AI Executive Report
 
 [![CI](https://github.com/rafauto/ai-executive-report/actions/workflows/ci.yml/badge.svg)](https://github.com/rafauto/ai-executive-report/actions/workflows/ci.yml)
-[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.12-blue)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.12%20%7C%203.13-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Status](https://img.shields.io/badge/status-v1.0%20complete-brightgreen)](#-project-status-and-roadmap)
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://ai-executive-report.streamlit.app)
@@ -171,7 +171,7 @@ ai-executive-report/
 
 ### Prerequisites
 
-- Python 3.10 or newer (3.12 recommended). On Windows, install it from [python.org](https://www.python.org/downloads/) and tick **Add python.exe to PATH** in the installer; check with `py --version`
+- Python 3.10 or newer (3.13 recommended). On Windows, install it from [python.org](https://www.python.org/downloads/) and tick **Add python.exe to PATH** in the installer; check with `py --version`
 - Git
 - An API key from [Anthropic](https://console.anthropic.com) or an OpenAI-compatible provider (optional: `offline` mode works without one)
 - A [Kaggle](https://www.kaggle.com) account (optional: only to download the real dataset)
@@ -197,7 +197,7 @@ source .venv/bin/activate
 Windows (PowerShell):
 
 ```powershell
-py -3.12 -m venv .venv
+py -3.13 -m venv .venv
 .venv\Scripts\Activate.ps1
 ```
 
@@ -296,7 +296,7 @@ ruff format --check .  # formatting (run `ruff format .` to fix)
 python scripts/run_eval.py --provider offline   # AI evaluation harness (target: 80% or more)
 ```
 
-Tests never call a real API: LLM SDKs are mocked and the pipeline accepts a fake writer. CI runs all of the above on Python 3.10 and 3.12 for every push and pull request, plus an end-to-end CLI run in demo mode.
+Tests never call a real API: LLM SDKs are mocked and the pipeline accepts a fake writer. CI runs all of the above on Python 3.10, 3.12 and 3.13 for every push and pull request, plus an end-to-end CLI run in demo mode.
 
 ## ☁️ Deployment
 

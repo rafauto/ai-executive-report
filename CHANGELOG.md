@@ -3,6 +3,15 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- Windows setup steps in the README (Python installer, PowerShell activation).
+
+### Changed
+- CI also runs on Python 3.13, the version now recommended in the README.
+- CI uses `actions/checkout@v7` and `actions/setup-python@v7` (Dependabot).
+
 ## [1.0.0] - 2026-11-02
 
 ### Added
@@ -41,5 +50,6 @@ MVP: the main flow works end to end.
 - Signed absolute changes in the KPI table (`+3,8` instead of `3,80`).
 - A visitor's API key is never written to `os.environ`, which is shared across app sessions.
 
+[Unreleased]: https://github.com/rafauto/ai-executive-report/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/rafauto/ai-executive-report/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/rafauto/ai-executive-report/releases/tag/v0.1.0
