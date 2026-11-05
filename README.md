@@ -171,7 +171,7 @@ ai-executive-report/
 
 ### Prerequisites
 
-- Python 3.10 or newer
+- Python 3.10 or newer (3.12 recommended). On Windows, install it from [python.org](https://www.python.org/downloads/) and tick **Add python.exe to PATH** in the installer; check with `py --version`
 - Git
 - An API key from [Anthropic](https://console.anthropic.com) or an OpenAI-compatible provider (optional: `offline` mode works without one)
 - A [Kaggle](https://www.kaggle.com) account (optional: only to download the real dataset)
@@ -187,10 +187,21 @@ cd ai-executive-report
 
 **2. Create and activate a virtual environment**
 
+macOS / Linux:
+
 ```bash
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+python3 -m venv .venv
+source .venv/bin/activate
 ```
+
+Windows (PowerShell):
+
+```powershell
+py -3.12 -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+> If PowerShell says that running scripts is disabled, run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once and try again. The prompt starts with `(.venv)` when the environment is active.
 
 **3. Install the dependencies**
 
