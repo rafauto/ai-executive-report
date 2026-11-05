@@ -9,6 +9,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Windows setup steps in the README (Python installer, PowerShell activation).
 
 ### Changed
+- `pyproject.toml` declares the license as an SPDX expression (`MIT`), removing a setuptools deprecation warning.
 - CI also runs on Python 3.13 and 3.14, the versions now recommended in the README.
 - CI uses `actions/checkout@v7` and `actions/setup-python@v7` (Dependabot).
 
