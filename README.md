@@ -334,5 +334,4 @@ Released under the [MIT License](LICENSE).
 
 ## 👤 Author
 
-**Rafaela Uto** · [GitHub](https://github.com/rafauto)
-<!-- TODO: add the LinkedIn profile link next to GitHub -->
+**Rafaela Uto** · [LinkedIn](https://www.linkedin.com/in/rafaelauto/) · [GitHub](https://github.com/rafauto)
